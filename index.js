@@ -24,6 +24,96 @@ app.use(bodyParser.json());
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
+
+
+var WebSocketServer = require('ws').Server,
+    wss = new WebSocketServer({
+        port: 8051
+    });
+
+// let listeners = {};
+
+
+wss.on('connection', (ws) => {
+// wss.on('connection', function connection(ws) {
+    console.log("WS connected");
+    let device = new Device(id);
+
+    // ws.room = [];
+    // ws.send(JSON.stringify(["time", parseInt((new Date()).getTime()/1000)]));
+
+    ws.on('error', function(err) {
+        console.log("WS error", err);
+    })
+
+    ws.on('close', function() {
+        console.log('WS closed')
+    })
+
+    ws.on('message', (message) => {
+        let arr = JSON.parse(message);
+
+        switch(arr[0]) {
+            case "config":
+                device.getFullConfig((data, err) => {
+                    console.log("get full config");
+                    if (err) {
+                        //ws.send(JSON.stringify(["error", err]));
+                    } else {
+                        ws.send(JSON.stringify(["config", data]));
+                    }
+                });
+                break;
+            case "limits":
+                    console.log("get limits");
+                    device.getLimits((data, err) => {
+                        if (err) {
+                            console.log("Error", err);
+                            //res.json({error: err});
+                        } else {
+                            ws.send(JSON.stringify(["limits", data]));
+                        }
+                    });
+                    break;
+
+            case "sensors":
+                console.log("get sensors");
+
+                device.getSensors((data, err) => {
+                    if (err) {
+                        console.log("Error", err);
+                        // res.json({error: err});
+                    } else {
+                        ws.send(JSON.stringify(["sensors", data]));
+                    }
+                });
+
+        }
+
+
+        // if (typeof listeners[arr[0]] === "function") {
+        //     listeners[arr[0]](arr[1]);
+        // }
+        // console.log("Server got: ", arr[0], arr[1]);
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // simple route
 app.get("/", (req, res) => {
     res.json({ message: "Welcome to Wi-Frost application." });
