@@ -15,6 +15,7 @@ const defaultSensors = {
 const defaultLimits = {
     moroz_min_temp: -16,
     compressor_max_temp: 70,
+    compressor_min_sleep: 1800,
     unit_max_temp: 40,
     delta_temp: 30,
     heater_start_hour: 3,

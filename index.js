@@ -25,90 +25,109 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
+const WSDispatcher = require("./dispatcher");
+const WebSocketServer = require('ws').Server;
 
-var WebSocketServer = require('ws').Server,
-    wss = new WebSocketServer({
+let socket = new WSDispatcher();
+socket.connect((next) => {
+    console.log("Start WebSocketServer");
+    let wss = new WebSocketServer({
         port: 8051
     });
 
-// let listeners = {};
+    wss.on('connection', (ws) => {
+        console.log("new socket connected");
+        next(ws);
+    });
+})
 
 
-wss.on('connection', (ws) => {
-// wss.on('connection', function connection(ws) {
-    console.log("WS connected");
-    let device = new Device(id);
-
-    // ws.room = [];
-    // ws.send(JSON.stringify(["time", parseInt((new Date()).getTime()/1000)]));
-
-    ws.on('error', function(err) {
-        console.log("WS error", err);
-    })
-
-    ws.on('close', function() {
-        console.log('WS closed')
-    })
-
-    ws.on('message', (message) => {
-        let arr = JSON.parse(message);
-
-        switch(arr[0]) {
-            case "config":
-                device.getFullConfig((data, err) => {
-                    console.log("get full config");
-                    if (err) {
-                        //ws.send(JSON.stringify(["error", err]));
-                    } else {
-                        ws.send(JSON.stringify(["config", data]));
-                    }
-                });
-                break;
-            case "limits":
-                    console.log("get limits");
-                    device.getLimits((data, err) => {
-                        if (err) {
-                            console.log("Error", err);
-                            //res.json({error: err});
-                        } else {
-                            ws.send(JSON.stringify(["limits", data]));
-                        }
-                    });
-                    break;
-
-            case "sensors":
-                console.log("get sensors");
-
-                device.getSensors((data, err) => {
-                    if (err) {
-                        console.log("Error", err);
-                        // res.json({error: err});
-                    } else {
-                        ws.send(JSON.stringify(["sensors", data]));
-                    }
-                });
-
+let device = new Device(id);
+socket.on("config", () => {
+    device.getFullConfig((data, err) => {
+        // console.log("get full config", err);
+        if (!err) {
+            socket.send("config", data);
         }
-
-
-        // if (typeof listeners[arr[0]] === "function") {
-        //     listeners[arr[0]](arr[1]);
-        // }
-        // console.log("Server got: ", arr[0], arr[1]);
     });
 });
 
+socket.on("limits", () => {
+    device.getLimits((data, err) => {
+        // console.log("get limits", err);
+        if (!err) {
+            socket.send("limits", data);
+        }
+    });
+});
+
+socket.on("sensors", () => {
+    device.getSensors((data, err) => {
+        // console.log("get sensors", err, data);
+        if (!err) {
+            data.moroz = "284d341104000093";
+            data.compressor = "28bf19110400009b";
+            socket.send("sensors", data);
+        }
+    });
+});
+
+socket.on("temperature", (data) => {
+    console.log("get temperature", data);
+
+    // device.getSensors((data, err) => {
+    //     if (!err) {
+    //         socket.send("sensors", data);
+    //     }
+    // });
+});
 
 
-
-
-
-
-
-
-
-
-
+//
+//
+//
+// wss.on('connection', (ws) => {
+// // wss.on('connection', function connection(ws) {
+//     console.log("WS connected");
+//     let device = new Device(id);
+//
+//     // ws.room = [];
+//     // ws.send(JSON.stringify(["time", parseInt((new Date()).getTime()/1000)]));
+//
+//     ws.on('error', function(err) {
+//         console.log("WS error", err);
+//     })
+//
+//     ws.on('close', function() {
+//         console.log('WS closed')
+//     })
+//
+//     ws.on('message', (message) => {
+//         let arr = JSON.parse(message);
+//
+//         switch(arr[0]) {
+//
+//         }
+//
+//
+//         // if (typeof listeners[arr[0]] === "function") {
+//         //     listeners[arr[0]](arr[1]);
+//         // }
+//         // console.log("Server got: ", arr[0], arr[1]);
+//     });
+// });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
