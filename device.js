@@ -13,12 +13,13 @@ const defaultSensors = {
     room: null
 };
 const defaultLimits = {
-    moroz_min_temp: -16,
+    moroz_start_temp: -10,
+    moroz_stop_temp: -16,
     compressor_max_temp: 70,
     compressor_min_sleep: 1800,
     unit_max_temp: 40,
     delta_temp: 30,
-    heater_start_hour: 3,
+    heater_start_hour: 15,
     heater_stop_minutes: 120
 };
 

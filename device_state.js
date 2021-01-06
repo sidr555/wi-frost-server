@@ -2,8 +2,8 @@ const Db = require('./redis_client');
 
 const defaultState = {
     start_time: null,
-    task: "none",
-    task_time: null,
+    job: "none",
+    job_time: null,
     temperature: {
         moroz: null,
         body: null,
@@ -30,14 +30,14 @@ let State = function (device) {
         });
     }
 
-    this.upTask = (task, next) => {
+    this.upJob = (job, next) => {
         this.get((state, err) => {
             let now = parseInt((new Date()).getTime() / 1000);
-            console.log("upTask db state", state, req.query.task);
-            if (state.task !== task) {
-                state.task = task;
-                state.task_time = now;
-                switch (task) {
+            console.log("upjob db state", state, req.query.job);
+            if (state.job !== job) {
+                state.job = job;
+                state.job_time = now;
+                switch (job) {
                     case "sleep":
                         // state.sleep_time = now;
                         break;

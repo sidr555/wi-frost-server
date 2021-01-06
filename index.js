@@ -169,12 +169,12 @@ app.get("/state", (req, res) => {
     });
 });
 
-app.get("/uptask/", (req, res) => {
-    console.log("up task", req.query);
+app.get("/upjob/", (req, res) => {
+    console.log("up job", req.query);
 
     let device = new Device(id);
 
-    device.state.upTask(req.query.task, (err) => {
+    device.state.upJob(req.query.job, (err) => {
         if (err) {
             res.json({error: err});
         } else {
