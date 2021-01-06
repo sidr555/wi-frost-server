@@ -75,11 +75,28 @@ socket.on("sensors", () => {
 socket.on("temperature", (data) => {
     console.log("get temperature", data);
 
-    // device.getSensors((data, err) => {
-    //     if (!err) {
-    //         socket.send("sensors", data);
-    //     }
-    // });
+    let temp = data.reduce((obj, item) => {
+      obj[item.type] = parseInt(item.temperature * 10) / 10;
+      return obj;
+    }, {});
+
+    device.state.upTemp(temp);
+});
+
+socket.on("job", (data) => {
+    device.state.upJob(data);
+});
+
+let log = [];
+socket.on("log", (data) => {
+    console.log("LOG", data)
+    log.push(data);
+});
+
+let warn = [];
+socket.on("warn", (data) => {
+    console.log("WARN", data)
+    warn.push(data);
 });
 
 
@@ -168,6 +185,15 @@ app.get("/state", (req, res) => {
         }
     });
 });
+
+app.get("/setjob/:job", (req, res) => {
+    console.log("set job from UI", req.params.job);
+    socket.send("setjob", req.params.job);
+    res.json({});
+});
+
+
+
 
 app.get("/upjob/", (req, res) => {
     console.log("up job", req.query);

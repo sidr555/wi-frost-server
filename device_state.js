@@ -2,7 +2,7 @@ const Db = require('./redis_client');
 
 const defaultState = {
     start_time: null,
-    job: "none",
+    job: "off",
     job_time: null,
     temperature: {
         moroz: null,
@@ -33,15 +33,15 @@ let State = function (device) {
     this.upJob = (job, next) => {
         this.get((state, err) => {
             let now = parseInt((new Date()).getTime() / 1000);
-            console.log("upjob db state", state, req.query.job);
+            console.log("upjob", job, state);
             if (state.job !== job) {
                 state.job = job;
                 state.job_time = now;
                 switch (job) {
-                    case "sleep":
-                        // state.sleep_time = now;
-                        break;
-                    case "start":
+                    // case "sleep":
+                    //     // state.sleep_time = now;
+                    //     break;
+                    case "on":
                         state.start_time = now;
                         break;
                 }
